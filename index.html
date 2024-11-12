@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVA-Style Portfolio Navigation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scrollbar-color: #64ffda #0a0a0f;
+}
+
+body {
+    background: #0a0a0f;
+    color: #8892b0;
+    font-family: "Space Mono", monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.nav-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: radial-gradient(circle at 75% 50%, #131620 0%, #0a0a0f 100%);
+    perspective: 1500px;
+}
+
+.nav-items {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.5rem;
+    transform: perspective(1500px) rotateY(-25deg);
+    transform-origin: right center;
+    margin-right: 2vw;
+    padding-right: 2vw;
+    position: relative;
+    z-index: 1;
+    border-right: 0.5rem solid #64ffda;
+    border-radius: 5rem 0 0 5rem;
+}
+
+.nav-item {
+    font-size: clamp(6rem, 24vw, 16rem);
+    font-weight: bold;
+    text-decoration: none;
+    color: transparent;
+    -webkit-text-stroke: 2px #64ffda;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    line-height: 0.9;
+    position: relative;
+    transform-style: preserve-3d;
+    padding-right: 30px;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+}
+
+.nav-item:hover {
+    color: #64ffda;
+    -webkit-text-stroke: 0;
+    transform: translateX(-30px);
+    text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+}
+
+.nav-year {
+    font-size: 1.5rem;
+    color: #495670;
+    position: absolute;
+    right: calc(100% + 3rem);
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: "Space Mono", monospace;
+    opacity: 0.7;
+}
+
+.corner-content {
+    position: fixed;
+    padding: 1.5rem;
+    color: #8892b0;
+    z-index: 10;
+    font-size: 1rem;
+}
+
+.top-left {
+    top: 0;
+    left: 0;
+}
+
+.bottom-left {
+    bottom: 0;
+    left: 0;
+}
+
+.bottom-right {
+    bottom: 0;
+    right: 0;
+    text-align: right;
+}
+
+.social-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.social-link {
+    color: #8892b0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.social-link:hover {
+    color: #64ffda;
+}
+
+.social-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: #64ffda;
+    transition: width 0.3s ease;
+}
+
+.social-link:hover::after {
+    width: 100%;
+}
+
+/* Project Overlay */
+.project-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(10, 10, 15, 0.98);
+    transform: translateX(-100%);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.project-overlay.active {
+    transform: translateX(0);
+}
+
+.project-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(100, 255, 218, 0.03) 0px,
+        rgba(100, 255, 218, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+}
+
+.project-header {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    border-bottom: 2px solid #64ffda;
+    position: relative;
+    background: rgba(10, 10, 15, 0.9);
+}
+
+.project-title {
+    font-size: 1.5rem;
+    color: #64ffda;
+    grid-column: 2;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+.close-button {
+    background: none;
+    border: 2px solid #64ffda;
+    color: #64ffda;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    grid-column: 3;
+    justify-self: end;
+    font-family: "Space Mono", monospace;
+}
+
+.close-button:hover {
+    background: #64ffda;
+    color: #0a0a0f;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    position: relative;
+    overflow-y: auto;
+}
+
+.project-grid::before {
+    content: 'PROJECT DATABASE ACCESS: GRANTED';
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    color: #64ffda;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.project-card {
+    background: rgba(19, 22, 32, 0.8);
+    border: 1px solid #64ffda;
+    padding: 2rem;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #64ffda;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+}
+
+.project-card:hover::before {
+    transform: scaleX(1);
+}
+
+.project-card h3 {
+    color: #64ffda;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.project-card h3::before {
+    content: '>';
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.project-card p {
+    color: #8892b0;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.project-card .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.project-card .tag {
+    background: rgba(100, 255, 218, 0.1);
+    color: #64ffda;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.875rem;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+}
+
+.diagnostic-line {
+    position: fixed;
+    background: rgba(100, 255, 218, 0.1);
+    pointer-events: none;
+}
+
+.diagnostic-line.horizontal {
+    height: 1px;
+    width: 100%;
+}
+
+.diagnostic-line.vertical {
+    width: 1px;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .project-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .nav-items {
+        transform: perspective(1500px) rotateY(-10deg);
+        padding-right: 5vw;
+    }
+    
+    .nav-item {
+        -webkit-text-stroke: 1px #64ffda;
+    }
+    
+    .nav-year {
+        font-size: 1rem;
+        right: calc(100% + 1.5rem);
+    }
+}
+
+.section-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(10, 10, 15, 0.98);
+    transform: translateX(-100%);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.section-overlay.active {
+    transform: translateX(0);
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.project-card {
+    background: rgba(19, 22, 32, 0.8);
+    border: 1px solid #64ffda;
+    padding: 2rem;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.project-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+}
+
+.project-card h3 {
+    color: #64ffda;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+}
+
+.project-card p {
+    color: #8892b0;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: rgba(100, 255, 218, 0.1);
+    color: #64ffda;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+    text-transform: lowercase;
+}
+
+/* Add smooth scrollbar for project grid */
+.project-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.project-grid::-webkit-scrollbar-track {
+    background: rgba(19, 22, 32, 0.8);
+}
+
+.project-grid::-webkit-scrollbar-thumb {
+    background: #64ffda;
+    border-radius: 4px;
+}
+.github-icon {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    color: #64ffda;
+    transition: all 0.3s ease;
+    transform: translateY(10px);
+}
+.github-icon:hover {
+    scale: 1.5;
+    bottom: 1.5rem;
+    right: 1.5rem;
+
+}
+.skills-container {
+    /* Remove position related properties */
+    position: static;
+    max-height: none;
+}
+
+.skill-class {
+    background: rgba(19, 22, 32, 0.8);
+    border: 1px solid #64ffda;
+    padding: 2rem;
+    position: relative;
+}
+
+.skill-class::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #64ffda;
+    opacity: 0.5;
+}
+
+.skill-class h3 {
+    color: #64ffda;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.skill-class h3::before {
+    content: '>';
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.skill-item {
+    margin-bottom: 1.5rem;
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.skill-name {
+    color: #8892b0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.skill-level {
+    color: #64ffda;
+    font-size: 0.875rem;
+    font-family: monospace;
+}
+
+.skill-bar {
+    height: 4px;
+    background: rgba(100, 255, 218, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.skill-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #64ffda;
+    transition: width 1s ease;
+}
+
+.skill-info {
+    font-size: 0.75rem;
+    color: #8892b0;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(100, 255, 218, 0.3);
+}
+
+.character-stats {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border: 1px solid #64ffda;
+    padding: 1.5rem;
+    background: rgba(19, 22, 32, 0.8);
+}
+
+.stat-item {
+    text-align: center;
+    position: relative;
+}
+
+.stat-label {
+    color: #8892b0;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes scanline {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(100%);
+    }
+}
+
+.scanline {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(100, 255, 218, 0.5);
+    animation: scanline 2s linear infinite;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .skills-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.character-profile {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: rgba(19, 22, 32, 0.8);
+    border: 1px solid #64ffda;
+    position: relative;
+    overflow: hidden;
+}
+
+.eva-portrait {
+    width: 400px;
+    height: 500px;
+    position: relative;
+    border: 2px solid #64ffda;
+    background: rgba(100, 255, 218, 0.05);
+    overflow: hidden;
+}
+
+.eva-unit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.diagnostic-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.diagnostic-line {
+    position: absolute;
+    background: rgba(100, 255, 218, 0.2);
+}
+
+.diagnostic-line.horizontal {
+    width: 100%;
+    height: 1px;
+}
+
+.diagnostic-line.vertical {
+    width: 1px;
+    height: 100%;
+}
+
+.diagnostic-text {
+    position: absolute;
+    color: #64ffda;
+    font-family: monospace;
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+.sync-rate {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(19, 22, 32, 0.9);
+    border: 1px solid #64ffda;
+    padding: 0.5rem;
+    color: #64ffda;
+    font-family: monospace;
+    animation: pulse 2s infinite;
+}
+
+.sync-rate::before {
+    content: 'SYNC RATE:';
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(100, 255, 218, 0.5), 
+        transparent
+    );
+    animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+    0% { top: -2px; }
+    100% { top: 100%; }
+}
+
+.targeting-square {
+    position: absolute;
+    border: 1px solid #64ffda;
+    opacity: 0.5;
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.neon-glow {
+    position: absolute;
+    inset: 0;
+    box-shadow: 
+        inset 0 0 50px rgba(100, 255, 218, 0.3),
+        0 0 30px rgba(100, 255, 218, 0.5);
+    pointer-events: none;
+}
+
+/* AT Field effect */
+.at-field {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg,
+        transparent 0%,
+        rgba(100, 255, 218, 0.1) 50%,
+        transparent 100%
+    );
+    animation: atField 3s ease-in-out infinite alternate;
+}
+
+@keyframes atField {
+    0% { opacity: 0.1; }
+    100% { opacity: 0.4; }
+}
+
+/* Status indicators */
+.status-block {
+    position: absolute;
+    background: rgba(19, 22, 32, 0.9);
+    border: 1px solid #64ffda;
+    padding: 0.5rem;
+    color: #64ffda;
+    font-family: monospace;
+    font-size: 0.75rem;
+}
+
+.status-block.top-left {
+    top: 1rem;
+    left: 1rem;
+}
+
+.status-block.bottom-right {
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.power-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #64ffda;
+    margin-right: 0.5rem;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+.skills-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+    overflow: auto;
+}
+
+.skills-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    overflow-y: auto;
+    max-height: 95%;
+}
+
+.eva-portrait {
+    position: sticky;
+    top: 2rem;
+    height: 80vh;
+    width: 400px;
+}
+
+@media (max-width: 1400px) {
+    .skills-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .eva-portrait {
+        display: none; /* Or handle differently for mobile */
+    }
+}
+
+.terminal-section {
+    background: rgba(19, 22, 32, 0.9);
+    border: 1px solid #64ffda;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.terminal-header {
+    background: rgba(100, 255, 218, 0.1);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #64ffda;
+}
+
+.terminal-title {
+    color: #64ffda;
+    font-family: monospace;
+}
+
+.terminal-body {
+    padding: 1.5rem;
+    position: relative;
+}
+
+.typing-text p {
+    margin-bottom: 1rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.typing-text p::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: #64ffda;
+}
+
+.cyber-list li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.cyber-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #64ffda;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat-box {
+    background: rgba(19, 22, 32, 0.9);
+    border: 1px solid #64ffda;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-title {
+    color: #64ffda;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 4rem;
+    color: #fff;
+    font-family: monospace;
+    margin-bottom: 0.5rem;
+    margin-top: 2.5rem;
+}
+
+.stat-bar {
+    height: 4px;
+    background: rgba(100, 255, 218, 0.1);
+    position: relative;
+}
+
+.stat-progress {
+    height: 100%;
+    background: #64ffda;
+    width: 0;
+    transition: width 2s ease;
+}
+
+/* Contact Form */
+.cyber-form {
+    padding: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.cyber-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #64ffda;
+}
+
+.cyber-input {
+    width: 100%;
+    background: rgba(19, 22, 32, 0.9);
+    border: 1px solid #64ffda;
+    color: #fff;
+    padding: 1rem;
+    font-family: monospace;
+    transition: all 0.3s ease;
+}
+
+.cyber-input:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
+}
+
+.cyber-textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.cyber-button {
+    background: none;
+    border: 1px solid #64ffda;
+    color: #64ffda;
+    padding: 1rem 2rem;
+    font-family: monospace;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+    background: rgba(100, 255, 218, 0.1);
+}
+
+.button-glitch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #64ffda;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cyber-button:hover .button-glitch {
+    animation: glitch 0.3s linear;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-5px, 5px); }
+    40% { transform: translate(-5px, -5px); }
+    60% { transform: translate(5px, 5px); }
+    80% { transform: translate(5px, -5px); }
+    100% { transform: translate(0); }
+}
+
+/* Layout */
+.about-layout,
+.contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+    overflow: auto;
+}
+
+.contact-info {
+    background: rgba(19, 22, 32, 0.9);
+    border: 1px solid #64ffda;
+    padding: 2rem;
+    position: sticky;
+    top: 2rem;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    background: #64ffda;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@media (max-width: 1024px) {
+    .about-layout,
+    .contact-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.contact-link{
+    color: #64ffda;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+    </style>
+</head>
+<body>
+    <div class="corner-content top-left">
+        <div>Portfolio Interface</div>
+        <div>Status: Online</div>
+        <div>Location: Web</div>
+        <div>Access: Public</div>
+    </div>
+
+    <nav class="nav-container">
+        <div class="nav-items">
+            <div class="nav-item" onclick="toggleSection('projects')">
+                <span class="nav-year">01/</span>
+                Projects
+            </div>
+            <div class="nav-item" onclick="toggleSection('skills')">
+                <span class="nav-year">02/</span>
+                Skills
+            </div>
+            <div class="nav-item" onclick="toggleSection('about')">
+                <span class="nav-year">03/</span>
+                About
+            </div>
+            <div class="nav-item" onclick="toggleSection('contact')">
+                <span class="nav-year">04/</span>
+                Contact
+            </div>
+        </div>
+    </nav>
+
+    <!-- Projects Overlay -->
+    <div class="section-overlay projects-overlay">
+        <div class="project-header">
+            <h2 class="project-title">Course Database</h2>
+            <button class="close-button" onclick="toggleSection('projects')">EXIT</button>
+        </div>
+
+        <div class="project-grid">
+            <!-- Flutter Firebase -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Flutter Firebase</h3>
+                <p>Build a full-stack Flutter app with Firebase from scratch.</p>
+                <div class="tags">
+                    <span class="tag">#flutter</span>
+                    <span class="tag">#firebase</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Dart 101 -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Dart 101</h3>
+                <p>Master the fundamentals of Dart before jumping into Flutter</p>
+                <div class="tags">
+                    <span class="tag">#dart</span>
+                    <span class="tag">#flutter</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- React -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>React - The Full Course</h3>
+                <p>Learn the fundamentals of React.js by building five apps from scratch.</p>
+                <div class="tags">
+                    <span class="tag">#react</span>
+                    <span class="tag">#javascript</span>
+                    <span class="tag">#nextjs</span>
+                    <span class="tag">#firebase</span>
+                </div>
+            </div>
+
+            <!-- Firebase Security -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Firebase Security Course</h3>
+                <p>Secure your Firebase app by mastering security rules</p>
+                <div class="tags">
+                    <span class="tag">#firebase</span>
+                    <span class="tag">#security</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Angular Firebase -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Angular Firebase Project</h3>
+                <p>Build a high-performance PWA with Angular and Firebase from scratch.</p>
+                <div class="tags">
+                    <span class="tag">#angular</span>
+                    <span class="tag">#firebase</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Firestore -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Firestore Data Modeling</h3>
+                <p>Learn how to query and model data in Firestore by example.</p>
+                <div class="tags">
+                    <span class="tag">#firestore</span>
+                    <span class="tag">#firebase</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Deno -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Deno Full Course</h3>
+                <p>Master TypeScript and Backend WebDev with Deno</p>
+                <div class="tags">
+                    <span class="tag">#typescript</span>
+                    <span class="tag">#deno</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- SvelteKit -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>SvelteKit Full Course</h3>
+                <p>Learn how to build awesome full-stack apps with SvelteKit</p>
+                <div class="tags">
+                    <span class="tag">#svelte</span>
+                    <span class="tag">#firebase</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Linux -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Linux Full Course</h3>
+                <p>Learn Linux and start self-hosting your apps like an open-source freedom fighter</p>
+                <div class="tags">
+                    <span class="tag">#linux</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Stripe -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Stripe for SaaS</h3>
+                <p>Accept Payments in your Software-as-a-Service Product with Stripe</p>
+                <div class="tags">
+                    <span class="tag">#stripe</span>
+                    <span class="tag">#pro</span>
+                    <span class="tag">#typescript</span>
+                </div>
+            </div>
+
+            <!-- Next.js -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Next.js Full Course</h3>
+                <p>Master the fundamentals of Next.js 14 and the App Router</p>
+                <div class="tags">
+                    <span class="tag">#react</span>
+                    <span class="tag">#nextjs</span>
+                    <span class="tag">#postgres</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Supabase -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>React Supabase Full Course</h3>
+                <p>Build and deploy a full-stack, production-ready web app with Supabase, React, and Postgres.</p>
+                <div class="tags">
+                    <span class="tag">#react</span>
+                    <span class="tag">#supabase</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- JavaScript -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Modern JavaScript Full Course</h3>
+                <p>Learn how to build real-world applications with JavaScript</p>
+                <div class="tags">
+                    <span class="tag">#javascript</span>
+                    <span class="tag">#node</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Next.js Firebase -->
+            <div class="project-card">
+                <a href="#">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Next.js Firebase Full Course</h3>
+                <p>Build a full-stack app with React, Firebase, and Next.js</p>
+                <div class="tags">
+                    <span class="tag">#react</span>
+                    <span class="tag">#nextjs</span>
+                    <span class="tag">#firebase</span>
+                    <span class="tag">#pro</span>
+                </div>
+            </div>
+
+            <!-- Next.js Firebase -->
+            <div class="project-card">
+                <a href="https://github.com/RobertTGreat/LV6-Software-JavaProject">
+                    <div class="github-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </div>
+                </a>
+                <h3>Game Credit Bank</h3>
+                <p>Build a basic app using java as a part of my foundation apprenticeship</p>
+                <div class="tags">
+                    <span class="tag">#java</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Overlay -->
+    <div class="section-overlay skills-overlay">
+        <div class="project-header">
+            <h2 class="project-title">Skill Analysis System</h2>
+            <button class="close-button" onclick="toggleSection('skills')">EXIT</button>
+        </div>
+        <div class="skills-layout">
+            <div class="skills-container">
+                <div class="character-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">4.8</div>
+                        <div class="stat-label">Years Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">142</div>
+                        <div class="stat-label">Projects Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">System Uptime</div>
+                    </div>
+                </div>
+
+                <!-- Frontend Skills -->
+                <div class="skill-class">
+                    <h3>Frontend Development</h3>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">React.js</div>
+                            <div class="skill-level">LVL 92</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 92%"></div>
+                        </div>
+                        <div class="skill-info">Specialized in Next.js and React Server Components</div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">TypeScript</div>
+                            <div class="skill-level">LVL 88</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 88%"></div>
+                        </div>
+                        <div class="skill-info">Advanced type systems and compiler API</div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">CSS/Sass</div>
+                            <div class="skill-level">LVL 85</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%"></div>
+                        </div>
+                        <div class="skill-info">Modern layouts with Grid and Flexbox</div>
+                    </div>
+                </div>
+
+                <!-- Backend Skills -->
+                <div class="skill-class">
+                    <h3>Backend Development</h3>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">Node.js</div>
+                            <div class="skill-level">LVL 90</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 90%"></div>
+                        </div>
+                        <div class="skill-info">API development and real-time systems</div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">Firebase</div>
+                            <div class="skill-level">LVL 94</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 94%"></div>
+                        </div>
+                        <div class="skill-info">Authentication, Firestore, and Cloud Functions</div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">PostgreSQL</div>
+                            <div class="skill-level">LVL 82</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 82%"></div>
+                        </div>
+                        <div class="skill-info">Complex queries and database design</div>
+                    </div>
+                </div>
+
+                <!-- DevOps Skills -->
+                <div class="skill-class">
+                    <h3>DevOps & Tools</h3>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">Git/GitHub</div>
+                            <div class="skill-level">LVL 88</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 88%"></div>
+                        </div>
+                        <div class="skill-info">Advanced version control and CI/CD</div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">Docker</div>
+                            <div class="skill-level">LVL 78</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 78%"></div>
+                        </div>
+                        <div class="skill-info">Container orchestration and deployment</div>
+                    </div>
+                </div>
+
+                <!-- Mobile Development -->
+                <div class="skill-class">
+                    <h3>Mobile Development</h3>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">Flutter</div>
+                            <div class="skill-level">LVL 85</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%"></div>
+                        </div>
+                        <div class="skill-info">Cross-platform mobile development</div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-name">React Native</div>
+                            <div class="skill-level">LVL 80</div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 80%"></div>
+                        </div>
+                        <div class="skill-info">Native mobile app development</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eva-portrait">
+                <div class="eva-unit">
+                    <!-- EVA Unit SVG -->
+                    <object data="images/OjXtW801.svg" type="image/svg+xml" 
+                class="robot-svg" width="100%" height="100%">
+        </object>
+                </div>
+                
+                <div class="diagnostic-overlay">
+                    <!-- Diagnostic lines -->
+                    <div class="diagnostic-line horizontal" style="top: 25%"></div>
+                    <div class="diagnostic-line horizontal" style="top: 50%"></div>
+                    <div class="diagnostic-line horizontal" style="top: 75%"></div>
+                    <div class="diagnostic-line vertical" style="left: 25%"></div>
+                    <div class="diagnostic-line vertical" style="left: 50%"></div>
+                    <div class="diagnostic-line vertical" style="left: 75%"></div>
+                    
+                    <!-- Targeting squares -->
+                    <div class="targeting-square" style="width: 100px; height: 100px; top: 30%; left: 35%"></div>
+                    <div class="targeting-square" style="width: 150px; height: 150px; top: 20%; left: 25%"></div>
+                    
+                    <!-- Status blocks -->
+                    <div class="status-block top-left">
+                        <div class="power-indicator"></div>
+                        SYSTEM ACTIVE
+                    </div>
+                    <div class="status-block bottom-right">
+                        <div>POWER: 100%</div>
+                        <div>AT FIELD: STABLE</div>
+                    </div>
+                    
+                    <!-- Sync rate -->
+                    <div class="sync-rate">98.2%</div>
+                </div>
+                
+                <div class="scan-line"></div>
+                <div class="at-field"></div>
+                <div class="neon-glow"></div>
+                
+                <!-- Diagnostic text -->
+                <div class="diagnostic-text" style="bottom: 10px; left: 10px">PILOT SYNC: NOMINAL</div>
+                <div class="diagnostic-text" style="top: 10px; right: 10px">T-MINUS: 00:00</div>
+        </div>
+        </div>
+    </div>  
+    <!-- About Overlay -->
+    <div class="section-overlay about-overlay">
+        <div class="project-header">
+            <h2 class="project-title">Personnel File: ROB-3RT</h2>
+            <button class="close-button" onclick="toggleSection('about')">EXIT</button>
+        </div>
+        <div class="about-layout">
+            <div class="about-content">
+                <div class="terminal-section">
+                    <div class="terminal-header">
+                        <span class="terminal-title">> System Analysis</span>
+                        <div class="terminal-controls">
+                            <div class="control-dot"></div>
+                            <div class="control-dot"></div>
+                            <div class="control-dot"></div>
+                        </div>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="typing-text">
+                            <p>Initializing personality matrix...</p>
+                            <p>Loading developer profile...</p>
+                            <p class="highlight">CLEARANCE LEVEL: AUTHORIZED</p>
+                            <br>
+                            <p>Greetings, I'm Robert, a Full Stack Developer with a passion for crafting digital experiences that push the boundaries of web technology.</p>
+                            <br>
+                            <p>Core Directives:</p>
+                            <ul class="cyber-list">
+                                <li>Building scalable web applications</li>
+                                <li>Experimenting with emerging technologies</li>
+                                <li>Optimizing user experiences</li>
+                                <li>Solving complex technical challenges</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-title">Code Lines Written</div>
+                        <div class="stat-value" data-value="1542897">0</div>
+                        <div class="stat-bar">
+                            <div class="stat-progress"></div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-title">Bugs Eliminated</div>
+                        <div class="stat-value" data-value="3427">0</div>
+                        <div class="stat-bar">
+                            <div class="stat-progress"></div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-title">Coffee Consumed</div>
+                        <div class="stat-value" data-value="8742">0</div>
+                        <div class="stat-bar">
+                            <div class="stat-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Contact Overlay -->
+    <div class="section-overlay contact-overlay">
+        <div class="project-header">
+            <h2 class="project-title">Communication Terminal</h2>
+            <button class="close-button" onclick="toggleSection('contact')">EXIT</button>
+        </div>
+        <div class="contact-layout">
+            <div class="contact-form-container">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span class="terminal-title">> New Transmission</span>
+                        <div class="terminal-status">SECURE CHANNEL</div>
+                    </div>
+                    <form class="cyber-form">
+                        <div class="form-group">
+                            <label class="cyber-label">
+                                <span class="label-text">> IDENTIFICATION:</span>
+                                <input type="text" class="cyber-input" placeholder="Enter your name">
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="cyber-label">
+                                <span class="label-text">> COMMUNICATION CHANNEL:</span>
+                                <input type="email" class="cyber-input" placeholder="Enter your email">
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="cyber-label">
+                                <span class="label-text">> MESSAGE CONTENTS:</span>
+                                <textarea class="cyber-input cyber-textarea" placeholder="Type your message"></textarea>
+                            </label>
+                        </div>
+                        <button type="submit" class="cyber-button">
+                            <span class="button-text">TRANSMIT</span>
+                            <div class="button-glitch"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="contact-info">
+                <div class="connection-status">
+                    <div class="status-indicator"></div>
+                    <span class="status-text">COMMUNICATION SYSTEMS ONLINE</span>
+                </div>
+                <div class="contact-methods">
+                    <a href="#" class="contact-link">
+                        <div class="contact-icon">@</div>
+                        <span class="contact-text">robert.robertsonid@gmail.com</span>
+                    </a>
+                    <a href="#" class="contact-link">
+                        <div class="contact-icon">#</div>
+                        <span class="contact-text">@RobertTGreat</span>
+                    </a>
+                    <a href="#" class="contact-link">
+                        <div class="contact-icon">&lt;/&gt;</div>
+                        <span class="contact-text">github/RobertTGreat</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('keydown', (event) => {
+            if (event.key === '1' || event.keyCode === 49) {
+                toggleSection('projects');
+            }else if (event.key === '2' || event.keyCode === 50) {
+                toggleSection('skills');
+            }else if (event.key === '3' || event.keyCode === 51) {
+                toggleSection('about');
+            }else if (event.key === '4' || event.keyCode === 52) {
+                toggleSection('contact');
+            }
+        })
+
+        function toggleSection(sectionName) {
+            console.log(`Clicking ${sectionName}`); // Debug which section is being clicked
+            
+            // First, let's check if our overlays exist
+            const projects = document.querySelector('.projects-overlay');
+            const skills = document.querySelector('.skills-overlay');
+            const about = document.querySelector('.about-overlay');
+            const contact = document.querySelector('.contact-overlay');
+            
+            console.log('Found overlays:', {
+                projects: !!projects,
+                skills: !!skills,
+                about: !!about,
+                contact: !!contact
+            });
+
+            // Close all sections first
+            const allOverlays = document.querySelectorAll('.section-overlay');
+            console.log('Number of overlays found:', allOverlays.length);
+            
+            allOverlays.forEach(overlay => {
+                overlay.classList.remove('active');
+                console.log('Removing active from:', overlay.className);
+            });
+            
+            // Try to open the clicked section
+            const targetOverlay = document.querySelector(`.${sectionName}-overlay`);
+            console.log('Target overlay found:', !!targetOverlay);
+            
+            if (targetOverlay) {
+                targetOverlay.classList.add('active');
+                console.log('Added active class to:', targetOverlay.className);
+            }
+
+            // Run animations if needed
+            if (sectionName === 'skills') {
+                animateSkills();
+            } else if (sectionName === 'about') {
+                initializeAboutSection();
+            }
+        }
+
+        // Animation for skill bars
+        function animateSkills() {
+            const skills = document.querySelectorAll('.skill-progress');
+            skills.forEach(skill => {
+                const width = skill.style.width;
+                skill.style.width = '0';
+                setTimeout(() => {
+                    skill.style.width = width;
+                }, 100);
+            });
+        }
+
+        // Animation for about section numbers
+        function initializeAboutSection() {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                const value = parseInt(stat.dataset.value);
+                if (!isNaN(value)) {
+                    animateValue(stat, 0, value, 2000);
+                }
+            });
+        }
+
+        function animateValue(element, start, end, duration) {
+            if (!element || isNaN(end)) return;
+            
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                element.textContent = current.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Make sure diagnostic updates still work
+        function updateDiagnostics() {
+            const syncRate = document.querySelector('.sync-rate');
+            if (syncRate) {
+                const newRate = (97 + Math.random() * 2).toFixed(1);
+                syncRate.textContent = `${newRate}%`;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setInterval(updateDiagnostics, 2000);
+            
+            // Add close button functionality
+            document.querySelectorAll('.close-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    button.closest('.section-overlay').classList.remove('active');
+                });
+            });
+        });
+
+        </script>
+</body>
+</html>
